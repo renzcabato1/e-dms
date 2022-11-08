@@ -25,6 +25,7 @@ class DocumentLibrariesController extends Controller
      */
     public function index($tag)
     {
+     
         if($tag == 'iso'){
             $tagView = 'iso';
             $tagID = '1';

@@ -23,6 +23,13 @@ class FilesController extends Controller
 {
    public function documentFile($link)
     {
+        $str = explode(".",$link);
+        if($str[1] == "pdf")
+        {
+            return redirect('/storage/document/pdf/iso/'.$link);
+        }
+        
+        // dd($str);
         $role = explode(",",auth()->user()->role);
         $dateToday = date('Y-m-d');
         // dd($role);

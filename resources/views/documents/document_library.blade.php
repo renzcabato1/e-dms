@@ -550,6 +550,7 @@
           'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
         },
       }).done(function(data) {
+        console.log(data);
         $(".completed").remove();
         $('.pdf_RevisionHistory').attr("href", '../extraction/library/' + documentLibraryID);
         $('#updateDocumentLibrary_ID').val(documentLibraryID);
