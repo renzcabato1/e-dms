@@ -30,6 +30,8 @@ Route::group( ['middleware' => 'auth'], function(){
     //Users
     Route::resource('users', 'UsersController');
     Route::post('add-user', 'UsersController@store');
+    Route::post('deactivate-user','UsersController@deactivateUser');
+    Route::post('activate-user','UsersController@activateUser');
 
     //---------- Request Entry ----------//
     //Route::get('documentrequest', 'RequestEntriesController@index')->name('documentrequest');

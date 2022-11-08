@@ -16,7 +16,7 @@ class UsersController extends Controller
     {
         //$users = DB::table('users')->get();
         $users = User::with('getCompany','getDepartment','getRole')->get();
-        $roles = Role::where('id', '!=', '1')->get();
+        $roles = Role::get();
         $companies = Company::get();
         $departments = Department::where('status', '=', 'Active')->get();
         return view('users.users',
@@ -28,7 +28,22 @@ class UsersController extends Controller
             )
         );
     }
-
+    public function deactivateUser(Request $request)
+    {
+        $user = User::where('id',$request->id)->first();
+        $user->status = "Deactivated";
+        $user->password = " ";
+        $user->save();
+        return "success";
+    }
+    public function activateUser(Request $request)
+    {
+        $user = User::where('id',$request->id)->first();
+        $user->status = null;
+        $user->password = bcrypt('abc123');
+        $user->save();
+        return "success";
+    }
     public function store(Request $request)
     {
         $this->validate($request, [

@@ -32,11 +32,15 @@ class RequestEntriesController extends Controller
         $dateToday = date('Y-m-d');
 
 
-        $request_iso_entries = RequestIsoEntry::with('user','requestType','documentType','documentToRevise','requestStatus','requestIsoEntryLatestHistory')
-                                                ->when(!in_array(1, $role) && !in_array(3, $role), function ($query) {
+        $request_iso_entries = RequestIsoEntry::with('user.getCompany','requestType','documentType','documentToRevise','requestStatus','requestIsoEntryLatestHistory')
+                                                ->when(!in_array(3, $role), function ($query) {
                                                     $query->where('requestor_name','=',auth()->user()->id);
                                                 })
+                                                ->when(in_array(3, $role), function ($query) {
+                                                    $query->where('company','=',auth()->user()->company);
+                                                })
                                                 ->get();
+        // dd($request_iso_entries);
         $request_legal_entries = RequestLegalEntry::with('user','documentType','requestStatus')
                                                     ->when(!in_array(1, $role) && !in_array(3, $role), function ($query) {
                                                         $query->where('requestor_name','=',auth()->user()->id);
@@ -99,6 +103,7 @@ class RequestEntriesController extends Controller
         $requestIsoEntry = new RequestIsoEntry;
         $requestIsoEntry->dicr_no = date("Y")."-".sprintf('%06d', $getLastDICR + 1);
         $requestIsoEntry->requestor_name = $request->requestEntry_Requestor;
+        $requestIsoEntry->company = auth()->user()->company;
         $requestIsoEntry->date_request = $request->requestEntry_DateRequest;
         $requestIsoEntry->title = $request->requestEntry_Title;
         $requestIsoEntry->proposed_effective_date = $request->requestEntry_DateEffective;

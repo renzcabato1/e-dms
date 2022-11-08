@@ -25,7 +25,7 @@ class FilesController extends Controller
     {
         $role = explode(",",auth()->user()->role);
         $dateToday = date('Y-m-d');
-
+        // dd($role);
         $revision_file = DocumentFileRevision::with('documentRevision.documentLibrary')
                                             ->when(!in_array(1, $role) && !in_array(3, $role), function ($query, $role) {
                                                 $query->whereHas('documentUserAccess', function ($userAccess) {

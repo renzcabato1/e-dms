@@ -175,6 +175,7 @@
                           <th class="th-sm" width="">Company</th>
                           <th class="th-sm" width="">Department</th>
                           <th class="th-sm" width="">Role</th>
+                          <th class="th-sm" width="">Status</th>
                           <th class="th-sm" width="5%">Action</th>
                         </tr>
                       </thead>
@@ -186,6 +187,8 @@
                           <td>{{ $user->getCompany->company_name }}</td>
                           <td>{{ $user->getDepartment->department }}</td>
                           <td>
+                            {{-- {{ $user->role }} --}}
+                            {{-- {{$roles}} --}}
                             @php
                               $role = explode(',', $user->role);
                               $roles_data = $roles->pluck('id');
@@ -195,12 +198,26 @@
                             @endphp
                             @foreach ($role as $rol)
                               @php
+                             
                                 $res = array_search($rol, $roles_data->toArray());
                               @endphp
                               {{ $roles[$res]->name }} <br>
                             @endforeach
-                          <td>
-                            {{-- <button id="{{$key}}" data-id="userEdit{{$user->id}}" style="color: black; text-align: center" type="button" class="btn btn-sm btn-warning px-2 btn-userEdit"><i class="fa-solid fa-pen-line"></i></button> --}}
+                          </td>
+                          <td id='userstatustd{{$user->id}}'>
+                            @if($user->status == null)
+                            <span class="badge bg-success">Active</span>
+                        
+                            @else
+                            <span class="badge bg-danger">Deactivated</span>
+                            @endif
+                          </td>
+                          <td id='useractiontd{{$user->id}}'>
+                            @if($user->status == null)
+                            <button id="{{$user->id}}" data-id="{{$user->id}}" style="color: black; text-align: center" type="button" title='disable user' class="btn btn-sm btn-danger px-2 btn-deactivate-user"><i class="fa-solid fa-user-slash"></i></button>
+                            @else
+                            <button id="{{$user->id}}" data-id="{{$user->id}}" style="color: black; text-align: center" type="button" title='activate user' class="btn btn-sm btn-success px-2 btn-activate-user"><i class="fa fa-check"></i></button>
+                            @endif
                           </td>
                         </tr>
                       @endforeach
@@ -240,31 +257,72 @@
       $('.js-example-basic-multiple').select2();
     });
 
-    $('.btn-userEdit').on('click', function(e) {
-      var btnEdit_ID = $(this).attr('id');
+    $('.btn-deactivate-user').on('click', function(e) {
+      var id = $(this).attr('id');
       Swal.fire({
         title: 'Are you sure?',
-        text: "You won't be able to revert this!",
+        text: "",
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#3085d6',
         cancelButtonColor: '#d33',
-        confirmButtonText: 'Yes, delete it!'
+        confirmButtonText: 'Yes, deactivate it!'
       }).then((result) => {
         if (result.isConfirmed) {
+
           $.ajax({
             type: 'POST',
-            url: "lol.php",
+            url: "deactivate-user",
             data: {
-              btnEdit_ID: btnEdit_ID
+              id: id
             },
+              headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
             success: function(resp) {
-              if (resp.success) {
-                swal.fire("Done!", resp.message, "success");
-                location.reload();
-              } else {
-                swal.fire("Error!", 'Sumething went wrong.', "error");
-              }
+              Swal.fire(
+                'Success',
+                'User has been deactivated!',
+                'success'
+              );
+              document.getElementById('userstatustd'+id).innerHTML = "<span class='badge bg-danger'>Deactivated</span>";
+              document.getElementById('useractiontd'+id).innerHTML = "<button id='"+id+"' data-id='"+id+"' class='btn btn-sm btn-success px-2 btn-activate-user' title='Activate'><i class='fa fa-check'></i></button>";
+                                   
+            },
+            error: function(resp) {
+              swal.fire("Error!", 'Something went wrong.', "error");
+            }
+          })
+        }
+      })
+    });
+    $('.btn-activate-user').on('click', function(e) {
+      var id = $(this).attr('id');
+      Swal.fire({
+        title: 'Are you sure?',
+        text: "",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, deactivate it!'
+      }).then((result) => {
+        if (result.isConfirmed) {
+
+          $.ajax({
+            type: 'POST',
+            url: "activate-user",
+            data: {
+              id: id
+            },
+              headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+            success: function(resp) {
+              Swal.fire(
+                'Success',
+                'User has been Activated! Default password abc123',
+                'success'
+              );
+              document.getElementById('userstatustd'+id).innerHTML = "<span class='badge bg-success'>Activated</span>";
+              document.getElementById('useractiontd'+id).innerHTML = "<button id='"+id+"' data-id='"+id+"' class='btn btn-sm btn-danger px-2 btn-deactivate-user' title='Activate'><i class='fa-solid fa-user-slash'></i></button>";
+                                   
             },
             error: function(resp) {
               swal.fire("Error!", 'Something went wrong.', "error");
